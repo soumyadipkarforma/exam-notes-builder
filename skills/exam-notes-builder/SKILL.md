@@ -12,7 +12,7 @@ Works for any subject. The examples in the reference files come from a physics c
 
 **Layout is fixed.** Every book uses `templates/ocwnotes.sty` unchanged and starts from `templates/main.tex` (`\setcourse`, `\notestitle`, `\include` per chapter): 12 pt Times (newtx), "Chapter N" openers, roomy spacing, light grey `keybox`/`tipbox`/`psetbox`, indented `solution`, black-and-white figures at `0.8\linewidth`. Do not design a new layout, change fonts or sizes, or shrink text to fit; copy the `.sty` next to `main.tex` and change only content.
 
-Work in phases, in order. Each phase ends in a **gate**; do not start the next phase until the gate passes. Keep `PROGRESS.md` in the course folder: one line per phase with status, date, and what is left.
+Work in phases, in order, starting with Phase S (tools). Each phase ends in a **gate**; do not start the next phase until the gate passes. Keep `PROGRESS.md` in the course folder: one line per phase with status, date, and what is left.
 
 ## Contents of this skill
 | Path | Use |
@@ -39,9 +39,30 @@ Work in phases, in order. Each phase ends in a **gate**; do not start the next p
 | `scripts/contact_sheet.py` | Renders the PDF as contact sheets (8 pages per image), splits them into batches for parallel checkers, zooms single pages. |
 | `agents/*.md` (plugin root) | Subagents: notes-writer, solution-verifier, paper-setter, notes-only-student, strict-grader, visual-checker. Installed automatically with the plugin; otherwise copy them to `.claude/agents/`. |
 
-Requirements: a TeX distribution with `latexmk` (TeX Live or MiKTeX; on MiKTeX without Perl run `pdflatex` three times instead), Python 3, poppler (`pdftotext`, `pdftoppm`), [Pillow](https://pillow.readthedocs.io/en/stable/installation/basic-installation.html) for contact sheets. Optional: a local model server for Phase 6.
+Requirements: a TeX distribution with `latexmk`, Python 3, poppler (`pdftotext`, `pdftoppm`) and Pillow. Optional: a local model server for Phase 6. Phase S below checks and installs them.
 
 ---
+
+## Phase S: Set up the tools
+Before Phase 0, make sure every tool the later phases call is installed, so no phase stops halfway on a missing program.
+
+1. **Check** each one by running it:
+
+   | Tool | Check | Needed for | Official install instructions |
+   |---|---|---|---|
+   | TeX distribution with `latexmk` | `latexmk -v`, `pdflatex --version` | building every PDF | TeX Live: https://tug.org/texlive/ · MiKTeX (Windows): https://miktex.org/download · MacTeX: https://tug.org/mactex/ |
+   | Python 3 | `python --version` (or `python3`) | all scripts | https://www.python.org/downloads/ |
+   | poppler (`pdftotext`, `pdftoppm`) | `pdftoppm -v` | reading books and papers, contact sheets | https://poppler.freedesktop.org/ (Windows builds: https://github.com/oschwartz10612/poppler-windows/releases) |
+   | Pillow | `python -c "import PIL"` | contact sheets (Phase 7) | https://pillow.readthedocs.io/en/stable/installation/basic-installation.html |
+   | Perl (only if `latexmk` fails on MiKTeX) | `perl -v` | `latexmk` on MiKTeX | https://strawberryperl.com/ ; or build with `pdflatex` three times instead |
+   | Local model server (optional) | the server's health URL | Phase 6 with tiny models | Lemonade: https://lemonade-server.ai/ · llama.cpp, Ollama or LM Studio: their own sites |
+
+2. **Install what is missing.** Follow the official instructions linked above for the user's operating system, using the system's usual package manager or installer. Ask the user before installing anything: it changes their computer, may need administrator rights, and a TeX distribution is several gigabytes. If you cannot install a tool yourself (no permission, no shell), tell the user exactly which tool is missing and give them its link.
+3. **Re-run the checks** until all required tools answer. MiKTeX installs missing LaTeX packages on first use, so the first build can be slow; let it finish.
+
+Do not continue past a missing required tool by working around it (for example writing notes you cannot compile): every gate depends on building and reading the PDF.
+
+**Gate S:** every required check in the table succeeds; record the versions in `PROGRESS.md`.
 
 ## Phase 0: Intake
 Find, and only ask for what you cannot find:
