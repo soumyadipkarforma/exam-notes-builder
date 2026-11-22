@@ -32,7 +32,24 @@ cp exam-notes-builder/agents/*.md ~/.claude/agents/      # optional subagents
 ### Claude.ai / Claude Desktop
 Zip the folder `skills/exam-notes-builder` and upload it under **Settings → Capabilities → Skills** (code execution must be on).
 
-### Other agents (Codex, Cursor, Gemini CLI, Aider, ...)
+### OpenAI Codex
+The repository is also a Codex plugin (root `plugin.json`; skills found in `skills/`) and a Codex marketplace (`.agents/plugins/marketplace.json`). Add it with
+```
+codex plugin marketplace add soumyadipkarforma/exam-notes-builder
+```
+then install **exam-notes-builder** from the Plugins Directory in the ChatGPT desktop app ([Codex plugin docs](https://developers.openai.com/codex/plugins)). Skill only: copy `skills/exam-notes-builder` into `~/.codex/skills/` or your project's `.agents/skills/`.
+
+### Gemini CLI
+The repository is a Gemini CLI extension (`gemini-extension.json`, context file `GEMINI.md`; the skill in `skills/` is discovered automatically):
+```
+gemini extensions install https://github.com/soumyadipkarforma/exam-notes-builder
+```
+([Gemini CLI extension docs](https://geminicli.com/docs/extensions/)). Skill only: copy `skills/exam-notes-builder` into `.gemini/skills/` (project) or `~/.gemini/skills/` (user).
+
+### Cursor, GitHub Copilot, VS Code and other Agent Skills tools
+`skills/exam-notes-builder/` follows the open [Agent Skills](https://agentskills.io) format. Copy it into the folder your tool reads, for example `.agents/skills/` (shared by several tools), `.cursor/skills/` (Cursor) or `.github/skills/` (GitHub Copilot).
+
+### Any other agent (Aider, plain chat models, ...)
 Put this repository in your project and tell the agent: *"Read `skills/exam-notes-builder/SKILL.md` and follow its phases."* `AGENTS.md` points agents there automatically. A small model can follow it one chapter at a time.
 
 ## Requirements
@@ -50,6 +67,8 @@ Put this repository in your project and tell the agent: *"Read `skills/exam-note
 .claude-plugin/marketplace.json   this repository as a marketplace; lists the plugin in plugin/
 plugin/                           generated plugin (submit this folder to the directory)
 tools/                            build_plugin.py, plugin.json and icon.png used to build plugin/
+plugin.json, .agents/plugins/     Codex plugin manifest and Codex marketplace (read the skill from skills/)
+gemini-extension.json, GEMINI.md  Gemini CLI extension
 agents/                           notes-writer, solution-verifier, paper-setter, notes-only-student,
                                   strict-grader, visual-checker (cheap, runs on Haiku)
 skills/exam-notes-builder/

@@ -111,5 +111,15 @@ def check(wrapped):
     print("plugin/ built: %d files wrapped, round-trip exact, only .md/.json/.png" % len(wrapped))
 
 
+def same_versions():
+    import json
+    files = ["tools/plugin.json", "plugin.json", "gemini-extension.json"]
+    vs = {f: json.loads((ROOT / f).read_text(encoding="utf-8"))["version"] for f in files}
+    m = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8"))
+    vs["marketplace"] = m["plugins"][0]["version"]
+    assert len(set(vs.values())) == 1, "versions differ: %s" % vs
+
+
 if __name__ == "__main__":
+    same_versions()
     check(build())
