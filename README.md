@@ -15,9 +15,9 @@ It works for any subject: physics, mathematics, chemistry, biology, computer sci
 
 ### Claude Code (plugin, recommended)
 ```
-/plugin marketplace add soumyadipkarforma/exam-notes-builder
-/plugin install exam-notes-builder@exam-notes-builder
+/plugin install exam-notes-builder --marketplace soumyadipkarforma/exam-notes-builder
 ```
+(Older Claude Code: `/plugin marketplace add soumyadipkarforma/exam-notes-builder`, then `/plugin install exam-notes-builder@exam-notes-builder`.) The plugin stores its scripts and templates as Markdown; the skill unpacks them into `exam-tools/` on first use.
 This installs the skill and its six subagents (notes-writer, solution-verifier, paper-setter, notes-only-student, strict-grader, visual-checker). Then, in a folder with your syllabus, books and papers:
 
 > Use the exam-notes-builder skill to make complete exam notes for <course>, <institution>, paper code <code>. The syllabus, books and past papers are in this folder.
@@ -37,14 +37,19 @@ Put this repository in your project and tell the agent: *"Read `skills/exam-note
 
 ## Requirements
 - A TeX distribution with `latexmk`: TeX Live or MiKTeX (on MiKTeX without Perl, run `pdflatex` three times instead).
-- Python 3. Pillow (`pip install pillow`) for the contact sheets; everything else uses the standard library.
+- Python 3. [Pillow](https://pillow.readthedocs.io/en/stable/installation/basic-installation.html) for the contact sheets; everything else uses the standard library.
 - poppler-utils: `pdftotext`, `pdftoppm`.
 - Optional, for mock exams with tiny local models: any OpenAI-compatible server with an embeddings endpoint (Lemonade Server, llama.cpp server, Ollama, LM Studio). Tested with 0.6–1.2 B models on a 16 GB laptop.
 
+## Two layouts, one source
+- `skills/exam-notes-builder/` and `agents/` are the source: real `.py`, `.sty`, `.tex` files, used by git users and other agents.
+- `plugin/` is generated from them by `python tools/build_plugin.py`: scripts and templates are wrapped as Markdown, because the Claude plugin directory accepts only Markdown, JSON and images from unverified publishers. This is the folder submitted to the directory. Rebuild it after every change; the script checks that every file unpacks back byte for byte.
+
 ## Contents
 ```
-.claude-plugin/plugin.json        plugin manifest
-.claude-plugin/marketplace.json   lets this repository act as its own plugin marketplace
+.claude-plugin/marketplace.json   this repository as a marketplace; lists the plugin in plugin/
+plugin/                           generated plugin (submit this folder to the directory)
+tools/                            build_plugin.py, plugin.json and icon.png used to build plugin/
 agents/                           notes-writer, solution-verifier, paper-setter, notes-only-student,
                                   strict-grader, visual-checker (cheap, runs on Haiku)
 skills/exam-notes-builder/

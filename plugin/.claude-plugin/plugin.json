@@ -1,0 +1,13 @@
+{
+  "name": "exam-notes-builder",
+  "version": "1.2.0",
+  "description": "Build complete, examiner-proof exam notes (LaTeX to PDF) for any course from a syllabus, textbooks and past papers; prove them complete with notes-only mock exams graded by a strict examiner; check every page visually; and finish with a short Exam Core revision book.",
+  "author": {
+    "name": "Soumyadip Karforma",
+    "url": "https://github.com/soumyadipkarforma"
+  },
+  "homepage": "https://github.com/soumyadipkarforma/exam-notes-builder",
+  "repository": "https://github.com/soumyadipkarforma/exam-notes-builder",
+  "license": "MIT",
+  "keywords": ["education", "exam", "study-notes", "latex", "pdf", "past-papers", "revision", "mock-exam"]
+}

@@ -9,7 +9,7 @@ checker, and renders single pages at higher resolution for close-up checks.
   python contact_sheet.py main.pdf sheets/ --batches 4     # also write batches.txt for 4 checkers
   python contact_sheet.py main.pdf sheets/ --zoom 37 52    # pages 37 and 52 at 100 dpi
 
-Needs poppler (pdftoppm) and Pillow (pip install pillow).
+Needs poppler (pdftoppm) and Pillow (https://pillow.readthedocs.io/en/stable/installation/basic-installation.html).
 """
 import argparse
 import glob

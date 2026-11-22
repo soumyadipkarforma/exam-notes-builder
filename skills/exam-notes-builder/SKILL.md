@@ -39,7 +39,7 @@ Work in phases, in order. Each phase ends in a **gate**; do not start the next p
 | `scripts/contact_sheet.py` | Renders the PDF as contact sheets (8 pages per image), splits them into batches for parallel checkers, zooms single pages. |
 | `agents/*.md` (plugin root) | Subagents: notes-writer, solution-verifier, paper-setter, notes-only-student, strict-grader, visual-checker. Installed automatically with the plugin; otherwise copy them to `.claude/agents/`. |
 
-Requirements: a TeX distribution with `latexmk` (TeX Live or MiKTeX; on MiKTeX without Perl run `pdflatex` three times instead), Python 3, poppler (`pdftotext`, `pdftoppm`), Pillow for contact sheets (`pip install pillow`). Optional: a local model server for Phase 6.
+Requirements: a TeX distribution with `latexmk` (TeX Live or MiKTeX; on MiKTeX without Perl run `pdflatex` three times instead), Python 3, poppler (`pdftotext`, `pdftoppm`), [Pillow](https://pillow.readthedocs.io/en/stable/installation/basic-installation.html) for contact sheets. Optional: a local model server for Phase 6.
 
 ---
 

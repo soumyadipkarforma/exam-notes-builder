@@ -1,0 +1,139 @@
+---
+name: exam-notes-builder
+description: Build complete, examiner-proof exam notes for any course or subject (LaTeX to PDF) from a syllabus, textbooks and past papers, then prove them complete with notes-only mock exams graded by a strict examiner, and finish with a short "Exam Core" revision book. Use for requests like "make exam notes", "notes so complete I don't need the book", "solve past papers", "formula sheet", "mock paper", "check my notes cover the syllabus", "short revision version".
+---
+
+# Exam Notes Builder
+
+**Goal.** Notes from which a student who never opens the textbook can (1) answer every question an examiner can set, old or new, and (2) write each answer so that a strict, step-marking examiner cannot deduct a mark.
+**Done means** a weak, notes-only test-taker plus a strict grader finds *no* deduction caused by the notes (Phase 6), every syllabus line is covered (Phase 3 check), and a short Exam Core exists (Phase 8).
+
+Works for any subject. The examples in the reference files come from a physics course; `reference/subject-adaptation.md` maps every rule to mathematics, chemistry, biology, computer science, engineering, economics, law, history and languages (what a "derivation", a "figure" or a "numerical" becomes).
+
+**Layout is fixed.** Every book uses `templates/ocwnotes.sty` unchanged and starts from `templates/main.tex` (`\setcourse`, `\notestitle`, `\include` per chapter): 12 pt Times (newtx), "Chapter N" openers, roomy spacing, light grey `keybox`/`tipbox`/`psetbox`, indented `solution`, black-and-white figures at `0.8\linewidth`. Do not design a new layout, change fonts or sizes, or shrink text to fit; copy the `.sty` next to `main.tex` and change only content.
+
+Work in phases, in order. Each phase ends in a **gate**; do not start the next phase until the gate passes. Keep `PROGRESS.md` in the course folder: one line per phase with status, date, and what is left.
+
+## Setup: unpack the tools (plugin install only)
+In this plugin the scripts and templates are stored as Markdown in `assets/` (the plugin directory accepts only Markdown). Once per project, before Phase 0, write each one out: every `assets/*.md` names its target path on a line starting with `Save as`, followed by one code block. Write that block, unchanged, to `exam-tools/<path>` in the project folder. Everywhere below, `scripts/...` and `templates/...` mean `exam-tools/scripts/...` and `exam-tools/templates/...`. This Python does it (save it as `exam-tools/unpack.py`, run `python exam-tools/unpack.py <this skill folder>/assets exam-tools`):
+
+```python
+import pathlib, re, sys
+src, out = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+for f in sorted(src.glob("*.md")):
+    t = f.read_text(encoding="utf-8")
+    path = re.search(r"^Save as `([^`]+)`", t, re.M).group(1)
+    code = re.search(r"^````[^\n]*\n(.*?)^````[ \t]*$", t, re.S | re.M).group(1)
+    p = out / path
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(code, encoding="utf-8", newline="\n")
+    print("wrote", p)
+```
+If you have the full repository (github.com/soumyadipkarforma/exam-notes-builder), the files already exist in `skills/exam-notes-builder/`; skip this step.
+
+## Contents of this skill
+| Path | Use |
+|---|---|
+| `assets/*.md` | Scripts and templates as Markdown; unpack them first (Setup above). |
+| `reference/subject-adaptation.md` | How the method maps to your subject. Read first if the course is not physics. |
+| `reference/style-rules.md` | How to write. Read before writing any chapter. |
+| `reference/chapter-structure.md` | Fixed order of every chapter, with a LaTeX skeleton. |
+| `reference/appendices.md` | Solved past papers, full-marks guide, formula/fact sheet. |
+| `reference/coverage-matrix.md` | Syllabus × books × past papers table template. |
+| `reference/mock-papers.md` | Setting book / old / unseen / fusion papers, with a paper template. |
+| `reference/grading-rubric.md` | Strict examiner marking scheme and N/R/S fault classes. |
+| `reference/expansion-brief.md` | Brief for parallel agents that fill gaps in chapters (no bloat). |
+| `reference/review-brief.md` | Brief for parallel agents that review chapters line by line for full marks. |
+| `reference/latex-pitfalls.md` | Build errors met before and their fixes; build gates. |
+| `reference/past-papers.md` | Finding, downloading and transcribing past papers. |
+| `templates/ocwnotes.sty`, `templates/main.tex` | Layout (12 pt Times, chapter openers, light boxes, roomy spacing) and book skeleton. |
+| `templates/syllabus_checklist.tsv`, `templates/core.txt` | Config files for the syllabus check and the Exam Core. |
+| `scripts/content_check.py` | Every title/example in the sources appears in the PDF (run after layout changes). |
+| `scripts/depth_audit.py` | Flags thin sections (too little explanation). |
+| `scripts/syllabus_check.py` | Every syllabus item / standard derivation is present in the notes. |
+| `scripts/build_core.py` | Extracts the short Exam Core book from the full notes. |
+| `scripts/rag_exam.py`, `scripts/run_all.sh` | Notes-only mock exam sat by tiny local models (any OpenAI-compatible server). |
+| `reference/visual-check.md` | Phase 7: contact sheets, parallel cheap checkers, defect list, zoom-and-fix loop. |
+| `scripts/contact_sheet.py` | Renders the PDF as contact sheets (8 pages per image), splits them into batches for parallel checkers, zooms single pages. |
+| `agents/*.md` (plugin root) | Subagents: notes-writer, solution-verifier, paper-setter, notes-only-student, strict-grader, visual-checker. Installed automatically with the plugin; otherwise copy them to `.claude/agents/`. |
+
+Requirements: a TeX distribution with `latexmk` (TeX Live or MiKTeX; on MiKTeX without Perl run `pdflatex` three times instead), Python 3, poppler (`pdftotext`, `pdftoppm`), [Pillow](https://pillow.readthedocs.io/en/stable/installation/basic-installation.html) for contact sheets. Optional: a local model server for Phase 6.
+
+---
+
+## Phase 0: Intake
+Find, and only ask for what you cannot find:
+1. Institution, programme, term, course name and **course/paper code**.
+2. The **official syllabus** for exactly this course and scheme. Copy every unit line verbatim into `COVERAGE.md`.
+3. The **exam pattern**, read from a real recent paper, never assumed: total marks, time, compulsory part, choice (e.g. "Q1 6×3 compulsory + any 4 of Q2–Q6, 18 each").
+4. Prescribed books, and which are on disk (`*.pdf`). Map book chapters to units.
+5. Constraints: theory only or practicals, printing (black and white), language, how answers are marked (steps, keywords, structure).
+
+**Gate 0:** syllabus text, the exam pattern from a real paper, and the book list are in `PROGRESS.md`.
+
+## Phase 1: Sources
+1. **Past papers** (`reference/past-papers.md`): the last 3 years of the current scheme plus at least 5 older ones (older scheme, other colleges, related courses). Transcribe every question into `sources/papers.md` as `YEAR | Q | marks | text | syllabus line`.
+2. **Books**: extract the table of contents and end-of-chapter problems (`pdftotext -f A -l B book.pdf -`). Record 5–10 representative questions per syllabus line.
+3. **Question-type census**: group every past question into types ("solve a Bernoulli ODE", "derive the rocket equation", "explain the causes of X", "distinguish A and B", "apply rule R to a case"). Count frequency, note the years.
+
+**Gate 1:** every past question has a type and a syllabus line; every syllabus line has book sections.
+
+## Phase 2: Coverage matrix
+Fill `reference/coverage-matrix.md` into `COVERAGE.md`. Add rows for anything examiners asked that sits inside a syllabus topic without being printed: examiners ask these.
+Also write `syllabus_checklist.tsv` in the notes folder (template in `templates/`): one line per syllabus line **and** per standard derivation/proof/method/essay a paper can ask for, each with a regex that must occur in the notes.
+
+**Gate 2:** every row has a planned location in the notes.
+
+## Phase 3: Chapters
+One chapter per syllabus unit or major topic, written by you or by `notes-writer` subagents in parallel (one per chapter; each edits only its own file and builds into its own `-outdir`), **always in the order of `reference/chapter-structure.md`**:
+intro (with past-question years) → for each topic: intuition → definitions → full derivation / proof / worked method / model argument with its figure → key result box → tip → three worked examples (direct, past paper, twisted) → further solved questions → **Concepts and strategy** (the big picture, how to recognise the question type, a plan for any unseen question, traps) → problems with answers.
+
+**Length.** Notes must teach, not list. Every section explains *why* in prose before and after the formal content. Aim for 1.5–3 pages per syllabus line. A section that is only formulas/bullet points and an example is too short (`scripts/depth_audit.py` flags these). Do not bloat either: add what an examiner can ask, nothing else.
+
+**Gate 3 (each chapter):** it compiles; every `COVERAGE.md` row assigned to it is ticked; `python scripts/syllabus_check.py <notes_dir>` reports nothing missing at the end of the phase.
+
+## Phase 4: Appendices
+Solved past papers (every question of the last 3 years as a model answer), Writing Answers for Full Marks (mark split, rules, one model answer, a per-question-type checklist, a time plan), Formula/Fact Sheet (one item per row, `ftab`). See `reference/appendices.md`.
+
+**Gate 4:** zero LaTeX errors, zero undefined references, no overfull box wider than 3 pt (`reference/latex-pitfalls.md`).
+
+## Phase 5: Verify every answer, and review for full marks
+1. For each worked example and practice answer, re-derive it independently (by hand or `python -I`): numbers, units, signs, factors of 2, facts, dates, citations, and that the answer answers the question asked. Use `solution-verifier` per chapter.
+2. Then run a **full-marks review**: parallel reviewers following `reference/review-brief.md`, one per 2–3 chapters (~60–90 KB of source each), each editing only its files. They fix errors, fill skipped steps and add missing past-paper question types. Check a sample of their fixes yourself.
+3. Never invent past-paper questions or data. If a question's data had to be reconstructed from its known answer, say so in the appendix.
+
+**Gate 5:** zero open issues; reviewers' reports checked.
+
+## Phase 6: Prove completeness with mock exams
+1. **Set papers** (`reference/mock-papers.md`) in the real pattern, never reusing a question solved word-for-word in the notes: a *book*, an *old-paper* and an *unseen* paper per course. For courses taken together, add a *fusion* paper where every question mixes two or three courses. Write and check the answer key while setting.
+2. **Sit them notes-only**:
+   - *Tiny local models with retrieval* (`scripts/rag_exam.py`, any OpenAI-compatible server with embeddings): weak at the subject, good at following instructions, so a right answer can only come from the notes. Tested on a 16 GB laptop through Lemonade Server: `LFM2.5-1.2B-Instruct-GGUF`, `unsloth/Llama-3.2-1B-Instruct-GGUF:Q4_K_M`, `Qwen3-0.6B-GGUF` (add `/no_think`), embedder `nomic-embed-text-v1-GGUF`. Rotate so each model sits one paper per course (`scripts/run_all.sh`).
+   - *Notes-only agents* (`agents/notes-only-student.md`, small model): read only the notes folder, no web, no prior knowledge, full exam-length answers.
+   - Tiny models often write "NOT IN NOTES" for things that are there: check every flag with a grep before calling it a gap.
+3. **Grade** with `agents/strict-grader.md` and `reference/grading-rubric.md`. Classify every lost mark as **N** (notes gap) → fix the notes; **R** (in the notes but not findable) → retitle, cross-reference, add to "how to recognise"; **S** (test-taker slip) → no change unless it is a common trap.
+4. Patch N and R, rebuild, re-verify the patched parts. Repeat with fresh papers until a round has zero N and zero R.
+
+**Gate 6:** the latest grade report has zero N and zero R deductions.
+
+## Phase 7: Visual check
+Compiling cleanly does not mean the pages look right. Follow `reference/visual-check.md`:
+1. `python scripts/contact_sheet.py main.pdf _sheets --batches 4` renders the book as contact sheets (8 pages per image, each labelled with its PDF page number) and splits them into batches.
+2. Spawn one `visual-checker` subagent (cheapest vision model, e.g. Haiku) per batch, all in one message so they run in parallel. Each reports `page N | kind | what is wrong`. Without subagents, check the sheets yourself one by one.
+3. Zoom on every reported page (`--zoom N`, 100 dpi) to confirm or reject it, fix the source, rebuild, zoom again. Never shrink body text to make things fit.
+
+**Gate 7:** a full pass of sheets; every report fixed (confirmed by a zoom after the fix) or rejected by a zoom.
+
+## Phase 8: Exam Core and delivery
+1. Students find a 150-page book overwhelming. Build a short **Exam Core** extracted from the full notes (nothing new, so it cannot drift): write `core.txt` in the notes folder (`must:` regex of the must-know derivation section/subsection titles; optional `past:` regex for past-paper example titles), then `python scripts/build_core.py <notes_dir>` and `latexmk -pdf core_main.tex`. It keeps the must-know sections in full (minus practice examples), every key-result box, every past-paper example with its solution, each chapter's Concepts and strategy, the formula sheet and the full-marks guide. Typical size: a third of the full book. Rebuild it whenever the notes change.
+2. Copy the final PDFs (full notes and Exam Core) to the course folder root with clear names, run `latexmk -c`, keep `COVERAGE.md`, `PROGRESS.md`, papers, keys and grade reports.
+3. Tell the student how to study: past-paper topic table → must-know derivations → key boxes + Concepts and strategy + past-paper examples → formula sheet; the full notes are the reference.
+4. Report honestly what was verified and what was not.
+
+## Rules for every phase
+- Edit `.tex` files with an editor tool or a Python script file. **Never** pass LaTeX through shell `sed` or heredocs: the shell eats backslashes.
+- Compile after every chapter and fix errors immediately.
+- Tag every examined result with its years. Never invent a past-paper question or year; label made-up ones "practice".
+- Black-and-white friendly. No information carried by colour alone.
+- Parallel agents: one file set per agent, own build directory, literal paths when deleting.
+- When the user says "make sure nothing is missed", the answer is the syllabus check plus Phase 6, not a longer reread.
+- After any layout change, run `scripts/content_check.py <notes_dir>` (every section, example and box title must appear in the PDF text).

@@ -1,0 +1,12 @@
+# templates/core.txt
+
+Save as `templates/core.txt`
+
+````text
+# Exam Core config for scripts/build_core.py (put this file in the notes folder).
+# must: regex of section/subsection titles kept in full (the must-know derivations/proofs/model answers).
+#       Every other section contributes only its keyboxes and its past-paper examples.
+# past: regex matched against example titles to decide which examples are past-paper examples (default: a year).
+must: Derivation of the rocket equation|Moments of inertia|Normal modes
+past: \b20\d\d\b|past paper
+````

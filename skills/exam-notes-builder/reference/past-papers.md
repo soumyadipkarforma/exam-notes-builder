@@ -1,8 +1,8 @@
 # Finding and reading past papers
 
 ## Where to look (adapt per institution; the examples are from Delhi University)
-- Aggregator sites that list papers by paper code (e.g. dupyq.online). Each paper page embeds a Google Drive file; take the file ID and download with
-  `curl -L -o paper.pdf "https://drive.google.com/uc?export=download&id=<ID>"`.
+- Aggregator sites that list papers by paper code (e.g. dupyq.online). Each paper page embeds a Google Drive file; take the file ID; the direct download address is
+  `https://drive.google.com/uc?export=download&id=<ID>` (save it with your usual download tool).
 - College library portals (e.g. DBC, SHV) host older papers as PDFs.
 - University and department archives, student-run question-paper sites, library portals, course websites (MIT OCW, etc.) for similar courses.
 - Search by the **paper code** (e.g. `2222011101`), not just the name: names repeat across schemes.
