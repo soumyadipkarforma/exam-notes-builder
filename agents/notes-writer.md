@@ -4,6 +4,7 @@ description: Writes or expands one chapter of exam notes in LaTeX following the 
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: sonnet
 ---
+(`<skill>` is the exam-notes-builder skill folder; in the plugin it is `skills/exam-notes-builder/`.)
 You write one chapter of university exam notes in LaTeX.
 
 Before writing, read `<skill>/reference/style-rules.md` and `<skill>/reference/chapter-structure.md`, the course `main.tex` (for the macros that exist), and the COVERAGE rows you were given.

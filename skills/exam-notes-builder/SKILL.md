@@ -35,9 +35,11 @@ Work in phases, in order. Each phase ends in a **gate**; do not start the next p
 | `scripts/syllabus_check.py` | Every syllabus item / standard derivation is present in the notes. |
 | `scripts/build_core.py` | Extracts the short Exam Core book from the full notes. |
 | `scripts/rag_exam.py`, `scripts/run_all.sh` | Notes-only mock exam sat by tiny local models (any OpenAI-compatible server). |
-| `agents/*.md` | Subagents: notes-writer, solution-verifier, paper-setter, notes-only-student, strict-grader. In Claude Code copy them to `.claude/agents/`. |
+| `reference/visual-check.md` | Phase 7: contact sheets, parallel cheap checkers, defect list, zoom-and-fix loop. |
+| `scripts/contact_sheet.py` | Renders the PDF as contact sheets (8 pages per image), splits them into batches for parallel checkers, zooms single pages. |
+| `agents/*.md` (plugin root) | Subagents: notes-writer, solution-verifier, paper-setter, notes-only-student, strict-grader, visual-checker. Installed automatically with the plugin; otherwise copy them to `.claude/agents/`. |
 
-Requirements: a TeX distribution with `latexmk` (TeX Live or MiKTeX; on MiKTeX without Perl run `pdflatex` three times instead), Python 3, poppler (`pdftotext`, `pdftoppm`). Optional: a local model server for Phase 6.
+Requirements: a TeX distribution with `latexmk` (TeX Live or MiKTeX; on MiKTeX without Perl run `pdflatex` three times instead), Python 3, poppler (`pdftotext`, `pdftoppm`), Pillow for contact sheets (`pip install pillow`). Optional: a local model server for Phase 6.
 
 ---
 
@@ -96,9 +98,12 @@ Solved past papers (every question of the last 3 years as a model answer), Writi
 **Gate 6:** the latest grade report has zero N and zero R deductions.
 
 ## Phase 7: Visual check
-Render every page to contact sheets (e.g. `pdftoppm -r 45` and 8 pages per image), look for overlapping labels, cramped or tiny figures, legends on top of curves, crowded tick labels, tables or equations sticking out; zoom in (100 dpi crops) on anything suspicious and fix it. Never shrink body text to make things fit.
+Compiling cleanly does not mean the pages look right. Follow `reference/visual-check.md`:
+1. `python scripts/contact_sheet.py main.pdf _sheets --batches 4` renders the book as contact sheets (8 pages per image, each labelled with its PDF page number) and splits them into batches.
+2. Spawn one `visual-checker` subagent (cheapest vision model, e.g. Haiku) per batch, all in one message so they run in parallel. Each reports `page N | kind | what is wrong`. Without subagents, check the sheets yourself one by one.
+3. Zoom on every reported page (`--zoom N`, 100 dpi) to confirm or reject it, fix the source, rebuild, zoom again. Never shrink body text to make things fit.
 
-**Gate 7:** no visual defect found on a full pass.
+**Gate 7:** a full pass of sheets; every report fixed (confirmed by a zoom after the fix) or rejected by a zoom.
 
 ## Phase 8: Exam Core and delivery
 1. Students find a 150-page book overwhelming. Build a short **Exam Core** extracted from the full notes (nothing new, so it cannot drift): write `core.txt` in the notes folder (`must:` regex of the must-know derivation section/subsection titles; optional `past:` regex for past-paper example titles), then `python scripts/build_core.py <notes_dir>` and `latexmk -pdf core_main.tex`. It keeps the must-know sections in full (minus practice examples), every key-result box, every past-paper example with its solution, each chapter's Concepts and strategy, the formula sheet and the full-marks guide. Typical size: a third of the full book. Rebuild it whenever the notes change.

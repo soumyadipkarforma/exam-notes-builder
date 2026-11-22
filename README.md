@@ -11,56 +11,73 @@ It works for any subject: physics, mathematics, chemistry, biology, computer sci
 - **Exam Core**: a book about a third of the size, extracted automatically (must-know derivations in full, key-result boxes, every past-paper example, strategy sections, formula sheet).
 - A clean, roomy, print-friendly layout (12 pt Times, black and white).
 
-## Use it
+## Install
 
-### Claude Code
-```bash
-git clone https://github.com/soumyadipkarforma/exam-notes-builder ~/.claude/skills/exam-notes-builder
+### Claude Code (plugin, recommended)
 ```
-(Windows: clone into `%USERPROFILE%\.claude\skills\exam-notes-builder`.) Optionally copy `agents/*.md` into your project's `.claude/agents/`. Then, in a folder with your syllabus, books and papers:
+/plugin marketplace add soumyadipkarforma/exam-notes-builder
+/plugin install exam-notes-builder@exam-notes-builder
+```
+This installs the skill and its six subagents (notes-writer, solution-verifier, paper-setter, notes-only-student, strict-grader, visual-checker). Then, in a folder with your syllabus, books and papers:
 
 > Use the exam-notes-builder skill to make complete exam notes for <course>, <institution>, paper code <code>. The syllabus, books and past papers are in this folder.
 
+### Claude Code (skill only)
+```bash
+git clone https://github.com/soumyadipkarforma/exam-notes-builder
+cp -r exam-notes-builder/skills/exam-notes-builder ~/.claude/skills/
+cp exam-notes-builder/agents/*.md ~/.claude/agents/      # optional subagents
+```
+
 ### Claude.ai / Claude Desktop
-Download this repository as a ZIP and upload it under **Settings → Capabilities → Skills** (code execution must be on). Then ask as above.
+Zip the folder `skills/exam-notes-builder` and upload it under **Settings → Capabilities → Skills** (code execution must be on).
 
 ### Other agents (Codex, Cursor, Gemini CLI, Aider, ...)
-Put this folder in your project and tell the agent: *"Read `exam-notes-builder/SKILL.md` and follow its phases."* `AGENTS.md` points agents there automatically. A small model can follow it one chapter at a time.
-
-### By hand
-`SKILL.md` is a readable checklist; the templates and scripts work on their own.
+Put this repository in your project and tell the agent: *"Read `skills/exam-notes-builder/SKILL.md` and follow its phases."* `AGENTS.md` points agents there automatically. A small model can follow it one chapter at a time.
 
 ## Requirements
 - A TeX distribution with `latexmk`: TeX Live or MiKTeX (on MiKTeX without Perl, run `pdflatex` three times instead).
-- Python 3 (standard library only).
+- Python 3. Pillow (`pip install pillow`) for the contact sheets; everything else uses the standard library.
 - poppler-utils: `pdftotext`, `pdftoppm`.
 - Optional, for mock exams with tiny local models: any OpenAI-compatible server with an embeddings endpoint (Lemonade Server, llama.cpp server, Ollama, LM Studio). Tested with 0.6–1.2 B models on a 16 GB laptop.
 
 ## Contents
 ```
-SKILL.md                     the procedure: 9 phases, each with a gate
-reference/                   style rules, chapter structure, appendices, coverage matrix, mock papers,
-                             grading rubric, subject adaptation, expansion and review briefs, LaTeX pitfalls,
-                             finding past papers
-templates/                   ocwnotes.sty (layout), main.tex (book skeleton),
-                             syllabus_checklist.tsv and core.txt (config examples)
-scripts/
-  content_check.py <dir>     every section/example/box title in the sources appears in the built PDF
-  depth_audit.py <dir>       flags sections with too little explanation
-  syllabus_check.py <dir>    every item in <dir>/syllabus_checklist.tsv is present in the notes
-  build_core.py <dir>        writes <dir>/core_main.tex (the Exam Core) using <dir>/core.txt
-  rag_exam.py                notes-only exam with a tiny local model + retrieval
-  run_all.sh                 example rotation of models and papers
-agents/                      notes-writer, solution-verifier, paper-setter, notes-only-student, strict-grader
+.claude-plugin/plugin.json        plugin manifest
+.claude-plugin/marketplace.json   lets this repository act as its own plugin marketplace
+agents/                           notes-writer, solution-verifier, paper-setter, notes-only-student,
+                                  strict-grader, visual-checker (cheap, runs on Haiku)
+skills/exam-notes-builder/
+  SKILL.md                        the procedure: 9 phases, each with a gate
+  reference/                      style rules, chapter structure, appendices, coverage matrix, mock papers,
+                                  grading rubric, subject adaptation, briefs, LaTeX pitfalls, past papers,
+                                  visual check
+  templates/                      ocwnotes.sty (layout), main.tex (book skeleton), config examples
+  scripts/
+    content_check.py <dir>        every section/example/box title in the sources appears in the built PDF
+    depth_audit.py <dir>          flags sections with too little explanation
+    syllabus_check.py <dir>       every item in <dir>/syllabus_checklist.tsv is present in the notes
+    build_core.py <dir>           writes <dir>/core_main.tex (the Exam Core) using <dir>/core.txt
+    contact_sheet.py pdf out/     contact sheets for the visual check (8 pages per image, batches, zoom)
+    rag_exam.py, run_all.sh       notes-only exam with a tiny local model + retrieval
+```
+
+## Visual check in one minute
+```bash
+S=skills/exam-notes-builder/scripts
+python $S/contact_sheet.py Course_Notes/main.pdf _sheets --batches 4   # ~19 images for 150 pages
+# Claude Code: one visual-checker subagent per batch, in parallel; each reports "page N | kind | problem"
+python $S/contact_sheet.py Course_Notes/main.pdf _sheets --zoom 42 77  # confirm at 100 dpi, then fix
 ```
 
 ## Quick script reference
 ```bash
+S=skills/exam-notes-builder/scripts
 latexmk -pdf -interaction=nonstopmode main.tex          # build (inside a notes folder)
-python scripts/content_check.py Course_Notes            # after layout changes
-python scripts/syllabus_check.py Course_Notes           # nothing missing from the syllabus
-python scripts/build_core.py Course_Notes && (cd Course_Notes && latexmk -pdf core_main.tex)
-RAG_API=http://127.0.0.1:13305/api/v1 python scripts/rag_exam.py <model> paper.md Course_Notes answers/paper__model.md
+python $S/content_check.py Course_Notes                 # after layout changes
+python $S/syllabus_check.py Course_Notes                # nothing missing from the syllabus
+python $S/build_core.py Course_Notes && (cd Course_Notes && latexmk -pdf core_main.tex)
+RAG_API=http://127.0.0.1:13305/api/v1 python $S/rag_exam.py <model> paper.md Course_Notes answers/paper__model.md
 ```
 
 ## Origin

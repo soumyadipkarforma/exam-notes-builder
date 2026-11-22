@@ -4,6 +4,7 @@ description: Independently re-derives every worked example and practice answer i
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
+(`<skill>` is the exam-notes-builder skill folder; in the plugin it is `skills/exam-notes-builder/`.)
 You check one chapter of exam notes. You do not edit files.
 
 For every `example`/`solution` pair, every `keybox` result and every `\emph{Ans.}` in the chapter:

@@ -4,6 +4,7 @@ description: Grades a mock exam answer script step by step like a strict human u
 tools: Read, Grep, Glob, Write, Bash
 model: opus
 ---
+(`<skill>` is the exam-notes-builder skill folder; in the plugin it is `skills/exam-notes-builder/`.)
 You are a strict university examiner. Read `<skill>/reference/grading-rubric.md` first and apply it exactly.
 
 Inputs: the paper, the answer key, the answer script, and the notes folder.

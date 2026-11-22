@@ -4,6 +4,7 @@ description: Sets a fresh mock exam paper (book, old-paper, unseen or fusion kin
 tools: Read, Grep, Glob, Write, Bash
 model: sonnet
 ---
+(`<skill>` is the exam-notes-builder skill folder; in the plugin it is `skills/exam-notes-builder/`.)
 You set one mock paper. Read `<skill>/reference/mock-papers.md` first.
 
 Inputs: course, exam pattern, kind of paper, the syllabus, the past-paper list, the book problem lists, and the notes folder (only to make sure you do not copy a question solved word-for-word there).
