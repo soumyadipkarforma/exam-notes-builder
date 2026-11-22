@@ -1,7 +1,9 @@
-% ocwnotes.sty: clean university lecture-notes layout (black & white).
-% Computer Modern type, "Lecture N" title blocks, light rule-based boxes, running heads.
+% ocwnotes.sty: the house layout for exam notes (black & white, print friendly), modelled on MIT OCW notes.
+% 12 pt Times text and maths (newtx), "Chapter N" openers (22/30 pt), 17/14 pt section heads,
+% italic-caps running head, line spread 1.22, block paragraphs, light grey key boxes, B&W plots.
+% Use it unchanged for every book; never shrink text to make things fit.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{ocwnotes}[2026/11/21 lecture-notes layout]
+\ProvidesPackage{ocwnotes}[2026/11/22 exam-notes layout]
 
 % ---------- page and type ----------
 \RequirePackage[a4paper,top=2.6cm,bottom=2.6cm,left=2.7cm,right=2.7cm,headsep=0.8cm,footskip=1.1cm]{geometry}
@@ -43,8 +45,7 @@
               {black,dashdotted,thick},{gray,solid,thick}}
 }
 
-% ---------- "Lecture" numbering ----------
-% chapters are called Chapter
+% ---------- course identity (running head and title page) ----------
 \newcommand{\coursecode}{}
 \newcommand{\courseshort}{}
 \newcommand{\setcourse}[2]{\renewcommand{\coursecode}{#1}\renewcommand{\courseshort}{#2}}

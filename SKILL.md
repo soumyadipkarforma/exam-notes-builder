@@ -10,6 +10,8 @@ description: Build complete, examiner-proof exam notes for any course or subject
 
 Works for any subject. The examples in the reference files come from a physics course; `reference/subject-adaptation.md` maps every rule to mathematics, chemistry, biology, computer science, engineering, economics, law, history and languages (what a "derivation", a "figure" or a "numerical" becomes).
 
+**Layout is fixed.** Every book uses `templates/ocwnotes.sty` unchanged and starts from `templates/main.tex` (`\setcourse`, `\notestitle`, `\include` per chapter): 12 pt Times (newtx), "Chapter N" openers, roomy spacing, light grey `keybox`/`tipbox`/`psetbox`, indented `solution`, black-and-white figures at `0.8\linewidth`. Do not design a new layout, change fonts or sizes, or shrink text to fit; copy the `.sty` next to `main.tex` and change only content.
+
 Work in phases, in order. Each phase ends in a **gate**; do not start the next phase until the gate passes. Keep `PROGRESS.md` in the course folder: one line per phase with status, date, and what is left.
 
 ## Contents of this skill
