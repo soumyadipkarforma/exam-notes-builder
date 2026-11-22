@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.out
+*.toc
+*.synctex.gz
+_build_*/
+index_*.json
