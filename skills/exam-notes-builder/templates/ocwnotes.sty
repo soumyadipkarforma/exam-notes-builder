@@ -1,16 +1,32 @@
 % ocwnotes.sty: the house layout for exam notes (black & white, print friendly), modelled on MIT OCW notes.
-% 12 pt Times text and maths (newtx), "Chapter N" openers (22/30 pt), 17/14 pt section heads,
-% italic-caps running head, line spread 1.22, block paragraphs, light grey key boxes, B&W plots.
+% Part of exam-notes-builder by Soumyadip Karforma (https://github.com/soumyadipkarforma/exam-notes-builder), MIT licence.
+% 12 pt text and maths, "Chapter N" openers (22/30 pt), 17/14 pt section heads,
+% italic running head, line spread 1.22, block paragraphs, light grey key boxes, B&W plots.
 % Use it unchanged for every book; never shrink text to make things fit.
+%
+% Layouts (choose one in main.tex; all share sizes, spacing, boxes and environments, so content never changes):
+%   \usepackage{ocwnotes}            classic  : Times text and maths (newtx), serif headings  [default]
+%   \usepackage[palatino]{ocwnotes}  palatino : Palatino text and maths (newpx), serif headings, warmer book look
+%   \usepackage[modern]{ocwnotes}    modern   : Times text and maths, sans-serif headings, ruled chapter openers
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{ocwnotes}[2026/11/22 exam-notes layout]
+\ProvidesPackage{ocwnotes}[2026/11/24 exam-notes layout v2]
+\def\ocw@layout{classic}
+\DeclareOption{classic}{\def\ocw@layout{classic}}
+\DeclareOption{palatino}{\def\ocw@layout{palatino}}
+\DeclareOption{modern}{\def\ocw@layout{modern}}
+\DeclareOption*{\PackageWarning{ocwnotes}{Unknown layout `\CurrentOption'; using classic}}
+\ProcessOptions\relax
+% works with pdfLaTeX, XeLaTeX and LuaLaTeX
+\def\ocw@iflayout#1{\def\ocw@tmp{#1}\ifx\ocw@tmp\ocw@layout\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}
 
 % ---------- page and type ----------
 \RequirePackage[a4paper,top=2.6cm,bottom=2.6cm,left=2.7cm,right=2.7cm,headsep=0.8cm,footskip=1.1cm]{geometry}
 \RequirePackage[T1]{fontenc}
 \RequirePackage{amsmath,amsthm,mathtools}
-\RequirePackage{newtxtext}            % Times text, as in the MIT 8.03 notes
-\RequirePackage[varvw]{newtxmath}     % matching maths (provides \mathbb, \oint)
+\ocw@iflayout{palatino}
+  {\RequirePackage[scaled=0.92]{newpxtext}\RequirePackage[scaled=0.92]{newpxmath}}   % Palatino, scaled to Times widths
+  % (Palatino is ~8% wider with a taller x-height; at 0.92 it reads as large as Times and a book written in one layout fits in all three)
+  {\RequirePackage{newtxtext}\RequirePackage[varvw]{newtxmath}}   % Times text and maths (provides \mathbb, \oint)
 \RequirePackage{bm,cancel}
 \RequirePackage[final]{microtype}
 \RequirePackage{enumitem,booktabs,array,multicol,tabularx,xltabular}
@@ -26,6 +42,8 @@
 \RequirePackage[hidelinks]{hyperref}
 \RequirePackage{xurl}
 \linespread{1.22}
+% paragraphs with long inline maths stretch their spaces instead of running into the margin
+\setlength{\emergencystretch}{3em}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{8pt plus 2pt}
 \setlist{itemsep=5pt,topsep=6pt,leftmargin=*}
@@ -65,6 +83,18 @@
 \titleformat{\paragraph}[runin]{\normalfont\normalsize\bfseries}{}{0pt}{}[.]
 \titlespacing*{\section}{0pt}{28pt plus 4pt minus 2pt}{10pt}
 \titlespacing*{\subsection}{0pt}{20pt plus 3pt minus 2pt}{7pt}
+\ocw@iflayout{modern}{%
+  \titleformat{\chapter}[display]
+    {\normalfont\sffamily\bfseries\raggedright}
+    {\fontsize{22}{26}\selectfont\chaptertitlename\ \thechapter}
+    {10pt}
+    {\titlerule[1.2pt]\vspace{10pt}\fontsize{30}{36}\selectfont}
+  \titleformat{name=\chapter,numberless}[display]
+    {\normalfont\sffamily\bfseries\raggedright}{}{0pt}{\titlerule[1.2pt]\vspace{10pt}\fontsize{30}{36}\selectfont}
+  \titleformat{\section}{\normalfont\sffamily\fontsize{17}{21}\selectfont\bfseries}{\thesection}{1em}{}
+  \titleformat{\subsection}{\normalfont\sffamily\fontsize{14}{17}\selectfont\bfseries}{\thesubsection}{0.9em}{}
+  \titleformat{\subsubsection}{\normalfont\sffamily\normalsize\bfseries}{\thesubsubsection}{0.7em}{}
+}{}
 
 % ---------- table of contents ----------
 \titlecontents{chapter}[0pt]{\addvspace{7pt}\bfseries}
@@ -168,5 +198,10 @@
 \vfill
 \rule{\linewidth}{0.4pt}\par\vspace{4pt}
 {#5\par}
+\vspace{10pt}
+{\footnotesize\itshape Made with exam-notes-builder by Soumyadip Karforma \textperiodcentered\ \url{https://github.com/soumyadipkarforma/exam-notes-builder}\par}
 \end{titlepage}}
+
+% ---------- branding in the PDF properties ----------
+\AtBeginDocument{\hypersetup{pdfcreator={exam-notes-builder by Soumyadip Karforma (github.com/soumyadipkarforma/exam-notes-builder)}}}
 \endinput

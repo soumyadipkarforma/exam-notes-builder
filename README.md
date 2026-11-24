@@ -1,5 +1,7 @@
 # Exam Notes Builder
 
+by **Soumyadip Karforma** · [github.com/soumyadipkarforma/exam-notes-builder](https://github.com/soumyadipkarforma/exam-notes-builder)
+
 An agent skill that turns a **syllabus + textbooks + past papers** into **complete, examiner-proof exam notes** (LaTeX → PDF) for any course, proves they are complete with notes-only mock exams graded by a strict examiner, and finishes with a short **Exam Core** revision book.
 
 It works for any subject: physics, mathematics, chemistry, biology, computer science, engineering, economics, law, history, languages. The method is the same; `reference/subject-adaptation.md` says what a "derivation", "figure" or "numerical" becomes in your subject.
@@ -9,7 +11,8 @@ It works for any subject: physics, mathematics, chemistry, biology, computer sci
 - **Appendices**: every recent past paper solved as model answers, a "writing answers for full marks" guide, a formula/fact sheet.
 - **Proof of completeness**: a syllabus checklist, a content check of the PDF, independent re-derivation of every answer, a parallel line-by-line full-marks review, and mock papers (book, old-paper, unseen, cross-course "fusion") sat by weak notes-only test-takers and graded step by step. Every lost mark is classed as a notes gap (fix), a findability problem (fix) or a student slip.
 - **Exam Core**: a book about a third of the size, extracted automatically (must-know derivations in full, key-result boxes, every past-paper example, strategy sections, formula sheet).
-- A clean, roomy, print-friendly layout (12 pt Times, black and white).
+- A clean, roomy, print-friendly layout in three variants, chosen with one word in `main.tex`: **classic** (Times), **palatino** (Palatino) or **modern** (Times with sans-serif headings). All share the same sizes, spacing and boxes, so switching never breaks a book. Black and white, 12 pt.
+- Every generated book carries a small "Made with exam-notes-builder by Soumyadip Karforma" line on its title page and in its PDF properties.
 
 ## Install
 
@@ -52,6 +55,9 @@ gemini extensions install https://github.com/soumyadipkarforma/exam-notes-builde
 ### Any other agent (Aider, plain chat models, ...)
 Put this repository in your project and tell the agent: *"Read `skills/exam-notes-builder/SKILL.md` and follow its phases."* `AGENTS.md` points agents there automatically. A small model can follow it one chapter at a time.
 
+## Small models
+The skill is written so that a small model can do the whole job: `reference/runbook.md` breaks it into numbered steps, each ending in a script check (`gates.py`, `syllabus_check.py`, `depth_audit.py`, `content_check.py`), and `templates/example_chapter.tex` shows exactly what a finished chapter looks like. The model writes content; the scripts decide whether it is done.
+
 ## Requirements
 - A TeX distribution with `latexmk`: TeX Live or MiKTeX (on MiKTeX without Perl, run `pdflatex` three times instead).
 - Python 3. [Pillow](https://pillow.readthedocs.io/en/stable/installation/basic-installation.html) for the contact sheets; everything else uses the standard library.
@@ -73,11 +79,14 @@ agents/                           notes-writer, solution-verifier, paper-setter,
                                   strict-grader, visual-checker (cheap, runs on Haiku)
 skills/exam-notes-builder/
   SKILL.md                        the procedure: 9 phases, each with a gate
+  reference/runbook.md            the same job as numbered steps with checks and recovery (for small models)
   reference/                      style rules, chapter structure, appendices, coverage matrix, mock papers,
                                   grading rubric, subject adaptation, briefs, LaTeX pitfalls, past papers,
                                   visual check
-  templates/                      ocwnotes.sty (layout), main.tex (book skeleton), config examples
+  templates/                      ocwnotes.sty (layout), main.tex (book skeleton), example_chapter.tex, config examples
   scripts/
+    new_course.py <dir> ...       creates a course folder: main.tex, layout, chapter stubs, PROGRESS/COVERAGE, configs
+    gates.py <dir>                builds and checks: errors, undefined refs, overfull boxes, placeholders (PASS/FAIL + hints)
     content_check.py <dir>        every section/example/box title in the sources appears in the built PDF
     depth_audit.py <dir>          flags sections with too little explanation
     syllabus_check.py <dir>       every item in <dir>/syllabus_checklist.tsv is present in the notes
@@ -97,7 +106,8 @@ python $S/contact_sheet.py Course_Notes/main.pdf _sheets --zoom 42 77  # confirm
 ## Quick script reference
 ```bash
 S=skills/exam-notes-builder/scripts
-latexmk -pdf -interaction=nonstopmode main.tex          # build (inside a notes folder)
+python $S/new_course.py Course_Notes --code X101 --title "Course" --short "Course" --term "Sem I" --layout palatino --chapters "c1_a:Topic A"
+python $S/gates.py Course_Notes                         # build + PASS/FAIL gates with fix hints
 python $S/content_check.py Course_Notes                 # after layout changes
 python $S/syllabus_check.py Course_Notes                # nothing missing from the syllabus
 python $S/build_core.py Course_Notes && (cd Course_Notes && latexmk -pdf core_main.tex)
@@ -107,5 +117,8 @@ RAG_API=http://127.0.0.1:13305/api/v1 python $S/rag_exam.py <model> paper.md Cou
 ## Origin
 Built and battle-tested while writing three ~100–150-page exam books for a first-year university physics programme, including line-by-line review by parallel agents and mock exams sat by 1-billion-parameter models.
 
+## Author
+Created and maintained by **Soumyadip Karforma** ([@soumyadipkarforma](https://github.com/soumyadipkarforma)).
+
 ## License
-MIT. See `LICENSE`.
+MIT, © 2026 Soumyadip Karforma. See `LICENSE`. Keep the copyright notice when you reuse or adapt the skill.

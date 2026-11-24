@@ -1,6 +1,7 @@
 # LaTeX pitfalls and checks
 
 ## Build
+`python scripts/gates.py <notes_dir>` does all of this (latexmk, or pdflatex three times without Perl) and prints PASS/FAIL with file, line and a fix hint. By hand:
 ```
 latexmk -pdf -interaction=nonstopmode main.tex
 grep -c '^!' main.log                       # errors: must be 0
@@ -26,3 +27,6 @@ latexmk -c                                   # clean when done
 
 ## Content check after any layout change
 Layout edits must not lose content. Run a check that every `\section`, `\subsection`, example title and keybox title in the `.tex` sources appears in `pdftotext main.pdf -` (normalise spaces and drop LaTeX markup and maths before comparing), that the number of `\begin{example}` in the sources equals the number of "Example N.M" labels in the PDF, and that every `\include`d file appears in the table of contents. `scripts/content_check.py` in this skill does this.
+
+## Figure labels crossed by curves (pgfplots)
+`every node/.append style={...}` given in axis options does **not** reach `\node` commands inside the axis, and curves drawn after a label cover it. Fix for a chapter full of graphs: wrap the chapter in `\begingroup ... \endgroup` with `\tikzset{every node/.append style={fill=white,inner sep=1pt,font=\small}}` at the top, and put every `\node` after the last `\addplot` of its axis. Do not use `axis on top` with this: tick numbers would then cover the labels. Do not set the white fill in the house style file globally: it would hide shaded regions in other figures.

@@ -49,20 +49,31 @@ The formula sheet and the full-marks guide are at the end.
 """
 
 
+def braced(s):
+    """Return (text inside the first {...} of s, index just after it), respecting nested braces."""
+    i = s.find("{")
+    depth = 0
+    for j in range(i, len(s)):
+        depth += {"{": 1, "}": -1}.get(s[j], 0)
+        if depth == 0:
+            return s[i + 1:j], j + 1
+    raise ValueError("unbalanced braces: " + s[:80])
+
+
 def chapter_core(src, must, PAST):
     src = PSET.sub("", re.sub(r"(?<!\\)%.*", "", src))
     parts = re.split(r"(?=\\section\*?\{)", src)
     out = [parts[0].strip()]  # chapter heading, intro and chapter-level macros
     for p in parts[1:]:
-        title = p[p.find("{") + 1:p.find("}")]
+        title, end = braced(p)
         if re.search(must, title) or "Concepts and strategy" in title:
             # derivations in full; practice (non past-paper) examples dropped
             out.append(EXAMPLE.sub(lambda e: e.group(0) if e.group(1) and PAST.search(e.group(1)) else "", p).strip())
             continue
-        head = re.match(r"\\section\*?\{.*?\}(\s*\\label\{[^}]*\})?", p).group(0)
+        head = p[:end] + (re.match(r"\s*\\label\{[^}]*\}", p[end:]) or re.match("", "")).group(0)
         body = []
         for i, sp in enumerate(re.split(r"(?=\\subsection\*?\{)", p)):
-            st = sp[sp.find("{") + 1:sp.find("}")] if i else ""
+            st = braced(sp)[0] if i else ""
             if i and re.search(must, st):  # must-know subsection: in full, minus practice examples
                 body.append(EXAMPLE.sub(lambda e: e.group(0) if e.group(1) and PAST.search(e.group(1)) else "", sp).strip())
                 continue
