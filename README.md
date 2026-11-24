@@ -14,6 +14,21 @@ It works for any subject: physics, mathematics, chemistry, biology, computer sci
 - A clean, roomy, print-friendly layout in three variants, chosen with one word in `main.tex`: **classic** (Times), **palatino** (Palatino) or **modern** (Times with sans-serif headings). All share the same sizes, spacing and boxes, so switching never breaks a book. Black and white, 12 pt.
 - Every generated book carries a small "Made with exam-notes-builder by Soumyadip Karforma" line on its title page and in its PDF properties.
 
+## Layouts (demo)
+Choose with one word in `main.tex`; the same book fits all three (tested on a 222-page book: 0 errors and no overfull boxes in each).
+
+**classic**: `\usepackage[classic]{ocwnotes}`
+
+![classic layout](docs/layout-classic.png)
+
+**palatino**: `\usepackage[palatino]{ocwnotes}`
+
+![palatino layout](docs/layout-palatino.png)
+
+**modern**: `\usepackage[modern]{ocwnotes}`
+
+![modern layout](docs/layout-modern.png)
+
 ## Install
 
 ### Claude Code (plugin, recommended)
